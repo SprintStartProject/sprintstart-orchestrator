@@ -1,0 +1,4 @@
+include:
+  - ./sprintstart-backend/docker-compose.yaml
+  - ./sprintstart-frontend/docker-compose.yml
+  - ./sprintstart-ai/docker-compose.yml
