@@ -1,7 +1,5 @@
 # SprintStart Orchestrator
 
-Local development orchestration for SprintStart.
-
 ## Overview
 
 This repository provides a single entry point for running the complete SprintStart development environment.
@@ -17,9 +15,8 @@ The services are managed through Git submodules and Docker Compose.
 
 ## Prerequisites
 
-* Docker Desktop
-* Docker Compose
-* GNU Make
+* Docker Desktop (or Docker Engine + Docker Compose)
+* Git
 
 ## Clone Repository
 
@@ -37,44 +34,98 @@ cd sprintstart-orchestrator
 git submodule update --init --recursive
 ```
 
-## Environment Setup
+## AI Configuration
 
-Create a local environment file:
+### Requirements
+
+Before starting the AI service, ensure one of the following providers is configured.
+
+#### Ollama
+
+1. Install Ollama.
+2. Start the Ollama service.
+3. Pull the required models:
 
 ```bash
-cp .env.example .env
+ollama pull llama3.2
+ollama pull nomic-embed-text
 ```
 
-Adjust values if necessary.
+#### OpenAI
 
-## Start All Services
+1. Create an OpenAI account.
+2. Generate an API key.
+3. Keep the API key available for the configuration step below.
 
-```bash
-make dev
+### Create a `.env` File
+
+Create a `.env` file in the project root.
+
+Example:
+
+```env
+# Backend selection
+LLM_BACKEND=ollama
+
+# Ollama configuration
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=llama3.2
+OLLAMA_EMBED_MODEL=nomic-embed-text
+
+# OpenAI configuration
+# Required only when LLM_BACKEND=openai
+OPENAI_API_KEY=<your-api-key>
+OPENAI_BASE_URL=https://api.openai.com/v1
+
+# ChromaDB
+CHROMA_PATH=/app/data/chroma_db
 ```
 
-## Stop All Services
+### Notes
+
+* Set `LLM_BACKEND=ollama` when using a local Ollama instance.
+* Set `LLM_BACKEND=openai` when using OpenAI.
+* `OPENAI_API_KEY` is required only for the OpenAI backend.
+* Ollama-specific variables are required only for the Ollama backend.
+
+## Start the Application
+
+After the initial configuration is complete:
 
 ```bash
-make stop
+docker compose up
+```
+
+To rebuild containers after dependency or configuration changes:
+
+```bash
+docker compose up --build
+```
+
+To run in detached mode:
+
+```bash
+docker compose up -d
+```
+
+## Stop the Application
+
+```bash
+docker compose down
 ```
 
 ## View Logs
 
+All services:
+
 ```bash
-make logs
+docker compose logs -f
 ```
 
-## Restart All Services
+Single service:
 
 ```bash
-make restart
-```
-
-## Validate Docker Compose Configuration
-
-```bash
-make config
+docker compose logs -f backend
 ```
 
 ## Default Ports
@@ -88,19 +139,19 @@ make config
 
 ## Smoke Tests
 
-Backend:
+### Backend
 
 ```bash
-curl http://localhost:8080/actuator/health
+curl http://localhost:8080/api/v1/health
 ```
 
-AI:
+### AI
 
 ```bash
 curl http://localhost:8000/api/v1/health
 ```
 
-Frontend:
+### Frontend
 
 Open:
 
@@ -122,14 +173,6 @@ docker ps
 
 If a required port is already in use, stop the conflicting application or change the port mapping.
 
-### Missing .env file
-
-Create the environment file:
-
-```bash
-cp .env.example .env
-```
-
 ### Submodules are missing
 
 Initialize all submodules:
@@ -138,16 +181,11 @@ Initialize all submodules:
 git submodule update --init --recursive
 ```
 
-## Repository Structure
+### Rebuild Everything
 
-```text
-sprintstart-orchestrator/
-├── .env.example
-├── .gitmodules
-├── .gitignore
-├── Makefile
-├── README.md
-├── sprintstart-backend/
-├── sprintstart-frontend/
-└── sprintstart-ai/
+If containers become outdated:
+
+```bash
+docker compose down
+docker compose up --build
 ```
