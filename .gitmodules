@@ -1,0 +1,9 @@
+[submodule "sprintstart-backend"]
+	path = sprintstart-backend
+	url = https://github.com/SprintStartProject/sprintstart-backend
+[submodule "sprintstart-frontend"]
+	path = sprintstart-frontend
+	url = https://github.com/SprintStartProject/sprintstart-frontend
+[submodule "sprintstart-ai"]
+	path = sprintstart-ai
+	url = https://github.com/SprintStartProject/sprintstart-ai
